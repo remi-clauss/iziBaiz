@@ -1,0 +1,11 @@
+{
+  "name": "izibaiz",
+  "version": "0.9.0",
+  "description": "Vanilla tweening",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Simulacres",
+  "license": "ISC"
+}

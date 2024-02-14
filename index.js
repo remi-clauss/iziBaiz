@@ -36,7 +36,7 @@ const REase = {
     sio6: t => 0 === t || 1 === t ? t : (t /= .25) < 1 ? .5 * 2 ** (15 * (t - 1)) : .5 * (2 - 2 ** (-15 * --t))
 }
 
-class IziBaiz {
+export default class IziBaiz {
     constructor(el, props, duration, ease, delay) {
         this.bind()
 

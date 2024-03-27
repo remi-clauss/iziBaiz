@@ -1,110 +1,320 @@
+const hexToRGB = (hex, alpha) => {
+    let r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
 
-function lerp(a, b, n) {
-    return a * (1 - n) + b * n;
+    if (alpha) {
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    } else {
+        return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
 }
 
-function RClamp(t, s, r){
-    return Math.min(Math.max(t, s), r)
+const getCurrentRotation = (el) => {
+    let st = window.getComputedStyle(el, null);
+    let tm = st.getPropertyValue("-webkit-transform") ||
+             st.getPropertyValue("-moz-transform") ||
+             st.getPropertyValue("-ms-transform") ||
+             st.getPropertyValue("-o-transform") ||
+             st.getPropertyValue("transform") ||
+             "none";
+    if (tm != "none") {
+        let values = tm.split('(')[1].split(')')[0].split(',');
+
+        let radians = Math.atan2(values[1], values[0]);
+        if ( radians < 0 ) {
+            radians += (2 * Math.PI);
+        }
+        let angle = Math.round( radians * (180/Math.PI));
+        return (angle < 0 ? angle + 360 : angle);
+    }
+    return 0;
 }
 
-function iLerp(t, s, r){
-    return RClamp((r - t) / (s - t), 0, 1)
-}
-const RRemap = (t, s, e, i, r) => lerp(e, i, iLerp(t, s, r))
-const REase = {
-    linear: t => t,
-    i1: t => 1 - Math.cos(t * (.5 * Math.PI)),
-    o1: t => Math.sin(t * (.5 * Math.PI)),
-    io1: t => -.5 * (Math.cos(Math.PI * t) - 1),
-    i2: t => t * t,
-    o2: t => t * (2 - t),
-    io2: t => t < .5 ? 2 * t * t : (4 - 2 * t) * t - 1,
-    i3: t => t * t * t,
-    o3: t => --t * t * t + 1,
-    io3: t => t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
-    i4: t => t * t * t * t,
-    o4: t => 1 - --t * t * t * t,
-    io4: t => t < .5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t,
-    i5: t => t * t * t * t * t,
-    o5: t => 1 + --t * t * t * t * t,
-    io5: t => t < .5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
-    sio5: t => t < .5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
-    i6: t => 0 === t ? 0 : 2 ** (10 * (t - 1)),
-    o6: t => 1 === t ? 1 : 1 - 2 ** (-10 * t),
-    so6: t => 1 === t ? 1 : 1 - 2 ** (-15 * t),
-    io6: t => 0 === t || 1 === t ? t : (t /= .5) < 1 ? .5 * 2 ** (15 * (t - 1)) : .5 * (2 - 2 ** (-15 * --t)),
-    sio6: t => 0 === t || 1 === t ? t : (t /= .25) < 1 ? .5 * 2 ** (15 * (t - 1)) : .5 * (2 - 2 ** (-15 * --t))
+const R = {
+    iLerp: (t,i,s)=>R.Clamp((s - t) / (i - t), 0, 1),
+    Lerp: (t,i,s)=>t * (1 - s) + i * s,
+    Damp: (t,i,s)=>R.Lerp(t, i, 1 - Math.exp(Math.log(1 - s) * RD)),
+    Remap: (t,i,s,e,r)=>R.Lerp(s, e, R.iLerp(t, i, r)),
+    Clamp: (t,i,s)=>t < i ? i : s < t ? s : t,
+    Clone: t=>JSON.parse(JSON.stringify(t)),
+    Def: t=>void 0 !== t,
+    Dist: (t,i)=>Math.sqrt(t * t + i * i),
+    Ease: {
+        linear: t=>t,
+        i1: t=>1 - Math.cos(t * (.5 * Math.PI)),
+        o1: t=>Math.sin(t * (.5 * Math.PI)),
+        io1: t=>-.5 * (Math.cos(Math.PI * t) - 1),
+        i2: t=>t * t,
+        o2: t=>t * (2 - t),
+        io2: t=>t < .5 ? 2 * t * t : (4 - 2 * t) * t - 1,
+        i3: t=>t * t * t,
+        o3: t=>--t * t * t + 1,
+        io3: t=>t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
+        i4: t=>t * t * t * t,
+        o4: t=>1 - --t * t * t * t,
+        io4: t=>t < .5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t,
+        i5: t=>t * t * t * t * t,
+        o5: t=>1 + --t * t * t * t * t,
+        io5: t=>t < .5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
+        sio5: t => t < .5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
+        i6: t=>0 === t ? 0 : 2 ** (10 * (t - 1)),
+        o6: t=>1 === t ? 1 : 1 - 2 ** (-10 * t),
+        io6: t=>0 === t || 1 === t ? t : (t /= .5) < 1 ? .5 * 2 ** (10 * (t - 1)) : .5 * (2 - 2 ** (-10 * --t)),
+        so6: t => 1 === t ? 1 : 1 - 2 ** (-15 * t),
+        sio6: t => 0 === t || 1 === t ? t : (t /= .35) < 1 ? .5 * 2 ** (10 * (t - 1)) : .5 * (2 - 2 ** (-10 * --t))
+    },
+    r0: (t,i)=>1 - 3 * i + 3 * t,
+    r1: (t,i)=>3 * i - 6 * t,
+    r2: (t,i,s)=>((R.r0(i, s) * t + R.r1(i, s)) * t + 3 * i) * t,
+    r3: (t,i,s)=>3 * R.r0(i, s) * t * t + 2 * R.r1(i, s) * t + 3 * i,
+    r4: (t,i,s,e,r)=>{
+        let h, a, l = 0;
+        for (; a = i + .5 * (s - i),
+        0 < (h = R.r2(a, e, r) - t) ? s = a : i = a,
+        1e-7 < Math.abs(h) && ++l < 10; )
+            ;
+        return a
+    }
+    ,
+    r5: (i,s,e,r)=>{
+        for (let t = 0; t < 4; ++t) {
+            var h = R.r3(s, e, r);
+            if (0 === h)
+                return s;
+            s -= (R.r2(s, e, r) - i) / h
+        }
+        return s
+    },
+    Ease4 : t=> {
+        const h = t[0]
+          , i = t[1]
+          , a = t[2]
+          , s = t[3];
+        let l = new Float32Array(11);
+        if (h !== i || a !== s)
+            for (let t = 0; t < 11; ++t)
+                l[t] = R.r2(.1 * t, h, a);
+        return t=>h === i && a === s || (0 === t || 1 === t) ? t : R.r2(function(t) {
+            let i = 0;
+            for (var s = 1; 10 !== s && l[s] <= t; ++s)
+                i += .1;
+            --s;
+            var e = (t - l[s]) / (l[s + 1] - l[s])
+              , e = i + .1 * e
+              , r = R.r3(e, h, a);
+            return .001 <= r ? R.r5(t, e, h, a) : 0 === r ? e : R.r4(t, r, r + .1, h, a)
+        }(t), i, s)
+    }
 }
 
 export default class IziBaiz {
-    constructor(el, props, duration, ease, delay) {
+    constructor() {
         this.bind()
-
-        this.elmnt = el
-
-        this.props = props
-
-        this.start = {
-            GLx: el.x,
-            GLy: el.y,
-            GLz: el.z,
-            value: el.value
-            // x: el.getBoundingClientRect().x,
-            // y: el.getBoundingClientRect().y,
-            // height: el.getBoundingClientRect().height,
-            // width: el.getBoundingClientRect().width,
-            // opacity: 1
-        }
-        this.target = {}
-
-        this.ease = ease || REase.o6,
-        this.duration = duration || 1.5,
-        this.delay = delay || 0,
-
         this.startTime
-        this.init()
     }
     bind() {
-        ['init', 'render'].forEach((fn) => this[fn] = this[fn].bind(this))
+        ['init', 'render', 'to', 'fromTo', 'callBack', 'compatibility', 'setVariable', 'setStart'].forEach((fn) => this[fn] = this[fn].bind(this))
     }
-    init(){
-        for(var prop in this.props) {
-            this.target[prop] = this.props[prop]
-		}
+    setVariable(E,O){
+        this.elmnt = E
+        this.target = {}
+        this.start = {}
+        this.toEL = {}
+        this.ease = O.ease || R.Ease.o6
+        this.duration = O.duration || 1.5
+        this.delay = O.delay || 0
+        this.onComplete = O.onComplete || undefined
+    }
+    setStart(E, A, AF){
+        for (var prop in A) {
+            if(AF){
+                this.start[prop] = A[prop]
+            }else{
+                if(prop === 'duration' || prop === 'ease' || prop === 'delay') return
+                if(E[prop] != undefined){
+                    this.start[prop] = E[prop]
+                } else if(E.getBoundingClientRect()[prop] != undefined || E.getBoundingClientRect()[prop]){
+                    this.start[prop] = E.getBoundingClientRect()[prop]
+                }else if(prop === 'rotate'){
+                    this.start[prop] = getCurrentRotation(E)
+                }else if(prop === 'autoAlpha'){
+                    this.start['opacity'] = window.getComputedStyle(E)['opacity']
+                    this.start['visibility'] = window.getComputedStyle(E)['visibility']
+                }else if(prop != 'autoAlpha' || window.getComputedStyle(E)[prop] != undefined || window.getComputedStyle(E)[prop] != NaN){
+                    this.start[prop] = window.getComputedStyle(E)[prop]
+                }else{
+                    this.start[prop] = E[prop]
+                }
+            }
+        }
+    }
+    compatibility(A, init){
+        for (var prop in A) {
+            if(prop === 'duration' || prop === 'ease' || prop === 'delay') return
+            if(typeof A[prop] === "string"){
+                if(A[prop].includes("vw")){
+                    A[prop] = parseInt(A[prop].replace("vw", "")) * window.innerWidth / 100
+                }else if(A[prop].includes("vh")){
+                    A[prop] = parseInt(A[prop].replace("vh", "")) * window.innerHeight / 100
+                }else if(A[prop].includes("%")){
+                    if(prop === 'x') A[prop] = parseInt(A[prop].replace("%", "")) * this.elmnt.getBoundingClientRect().width / 100
+                    if(prop === 'y') A[prop] = parseInt(A[prop].replace("%", "")) * this.elmnt.getBoundingClientRect().height / 100
+                }else if(A[prop].includes("#")){
+                    A[prop] = hexToRGB(A[prop])
+                }else if(A[prop].includes("px")){
+                    A[prop] = parseInt(A[prop].replace("px", ""))
+                }
+                if(!init) this.target[prop] = A[prop]
+                if(!init) this.toEL[prop] = this.target[prop]
+            }else{
+                if(!init) this.target[prop] = A[prop]
+                if(!init && prop === 'autoAlpha'){
+                    this.target['opacity'] = A['autoAlpha']
+                    this.toEL['opacity'] = this.target['autoAlpha']
+                } 
+                if(!init) this.toEL[prop] = this.target[prop]
+                if(init) A[prop] = A[prop]
+            }
+        }
+    }
+    to(el, opts, TL){
+        this.setVariable(el, opts)
+        this.setStart(el, opts)
+        this.compatibility(opts)
+        this.init()
+        if(!TL) this.callBack(opts.delay ? opts.duration + opts.delay : opts.duration, this.onComplete)
+    }
+    fromTo(el, optsFrom, optsTo, TL){
+        this.setVariable(el, optsTo)
+        this.setStart(el, optsFrom, optsFrom)
+        this.compatibility(optsTo)
+        this.init()
+        if(!TL) this.callBack(optsTo.delay ? optsTo.duration + optsTo.delay : optsTo.duration, this.onComplete)
+    }
+    TL(el, opts){
+        let d = 0
+        let t = [0]
+        let timeCallback = 0
+        let onComplete
+        opts.forEach((anim,index) =>{
+            timeCallback += anim.delay ? anim.duration + anim.delay : anim.duration
+            if(anim.onComplete) onComplete = anim.onComplete
+            if(index != 0){
+                d += opts[index-1].duration * 1000
+                t.push(d)
+            }
+            setTimeout(() => {
+                if(index === 0){
+                    this.to(el, anim, 'tl')
+                }else{
+                    this.fromTo(el, opts[index-1], opts[index], 'tl')
+                }
+            },  t[index]);
+        });
+        this.callBack(timeCallback, onComplete)
+    }
+    init() {
+        this.compatibility(this.start, 'init')
         setTimeout(() => {
             this.startTime = new Date()
             this.render()
         }, this.delay * 1000);
     }
+    callBack(duration, callBack){
+        setTimeout(() => {if(callBack) callBack()}, duration * 1000);
+    }
     render() {
         let time = new Date() - this.startTime
-        if(time * 0.001 < this.duration) {
-            for(var prop in this.props) {
-                this.props[prop] = RRemap(0,0.999,this.start[prop], this.target[prop], this.ease(time * 0.001/this.duration))
-                if(prop === 'x' || prop === 'y'){
-                    this.elmnt.style.transform = `translate3D(${this.props['x']}px, ${this.props['y']}px, 0px)`
-                }else if(prop === 'height'){
-                    this.elmnt.style.height = this.props[prop] + 'px'
-                }else if(prop === 'width'){
-                    this.elmnt.style.width = this.props[prop] + 'px'
-                }else if(prop === 'opacity'){
-                    this.elmnt.style.opacity = this.props[prop]
-                }else if(prop === 'GLx'){
-                    this.elmnt.x = this.props[prop]
-                }else if(prop === 'GLy'){
-                    this.elmnt.y = this.props[prop]
-                }else if(prop === 'GLz'){
-                    this.elmnt.z = this.props[prop]
-                }else if(prop === 'value'){
-                    this.elmnt.value = this.props[prop]
-                }else{
-                    prop = this.props[prop]
+        if (time * 0.001 <= this.duration) {
+            for (var prop in this.toEL) {
+                if(prop != 'backgroundColor' || prop != 'color'){
+                    this.toEL[prop] = R.Remap(0, 0.999, this.start[prop], this.target[prop], this.ease(time * 0.001 / this.duration))
+                }
+                if (prop === 'x' || prop === 'y' || prop === 'rotate') {
+                    if(this.elmnt instanceof window.HTMLElement){
+                        if(this.toEL['x'] === undefined && this.toEL['y'] != undefined && this.toEL['rotate'] != undefined){
+                            this.elmnt.style.transform = `translate3d(0px, ${this.toEL['y']}px, 0px) rotate(${this.toEL['rotate']}deg)`
+                        }else if(this.toEL['y'] === undefined && this.toEL['x'] != undefined && this.toEL['rotate'] != undefined){
+                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, 0px, 0px) rotate(${this.toEL['rotate']}deg)`
+                        }else if(this.toEL['rotate'] === undefined && this.toEL['y'] != undefined && this.toEL['x'] != undefined){
+                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, ${this.toEL['y']}px, 0px)`
+                        }else if(this.toEL['y'] === undefined && this.toEL['x'] === undefined && this.toEL['rotate'] != undefined){
+                            this.elmnt.style.transform = `rotate(${this.toEL['rotate']}deg)`
+                        }else if(this.toEL['y'] === undefined && this.toEL['rotate'] === undefined && this.toEL['x'] != undefined){
+                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, 0px, 0px)`
+                        }else if(this.toEL['x'] === undefined && this.toEL['rotate'] === undefined  && this.toEL['y'] != undefined){
+                            this.elmnt.style.transform = `translate3d(0px, ${this.toEL['y']}px, 0px)`
+                        }else{
+                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, ${this.toEL['y']}px, 0px) rotate(${this.toEL['rotate']}deg)`
+                        }
+                    }else{
+                        if(prop === 'x'){
+                            this.elmnt.x = this.toEL[prop]
+                        }else if(prop === 'y'){
+                            this.elmnt.y = this.toEL[prop]
+                        }else if(prop === 'z'){
+                            this.elmnt.z = this.toEL[prop]
+                        }
+                    }
+                } else if (prop === 'height') {
+                    this.elmnt.style.height = this.toEL[prop] + 'px'
+                } else if (prop === 'width') {
+                    this.elmnt.style.width = this.toEL[prop] + 'px'
+                } else if (prop === 'margin' || prop === 'marginRight' || prop === 'marginLeft' || prop === 'marginTop' || prop === 'marginBottom') {
+                    if(prop === 'margin')this.elmnt.style.margin = this.toEL[prop] + 'px'
+                    if(prop === 'marginTop')this.elmnt.style.margin = `${this.toEL[prop]}px 0 0 0`
+                    if(prop === 'marginRight')this.elmnt.style.margin = `0 ${this.toEL[prop]}px 0 0`
+                    if(prop === 'marginBottom')this.elmnt.style.margin = `0 0 ${this.toEL[prop]}px 0`
+                    if(prop === 'marginLeft')this.elmnt.style.margin = `0 0 0 ${this.toEL[prop]}px`
+                } else if (prop === 'padding' || prop === 'paddingRight' || prop === 'paddingLeft' || prop === 'paddingTop' || prop === 'paddingBottom') {
+                    if(prop === 'padding')this.elmnt.style.padding = this.toEL[prop] + 'px'
+                    if(prop === 'paddingTop')this.elmnt.style.padding = `${this.toEL[prop]}px 0 0 0`
+                    if(prop === 'paddingRight')this.elmnt.style.padding = `0 ${this.toEL[prop]}px 0 0`
+                    if(prop === 'paddingBottom')this.elmnt.style.padding = `0 0 ${this.toEL[prop]}px 0`
+                    if(prop === 'paddingLeft')this.elmnt.style.padding = `0 0 0 ${this.toEL[prop]}px`
+                } else if (prop === 'opacity') {
+                    this.elmnt.style.opacity = this.toEL[prop]
+                }else if (prop === 'autoAlpha') {
+                    this.elmnt.style.opacity = this.toEL[prop]
+                    if(this.toEL[prop] > 0){
+                        this.elmnt.style.visibility = 'visible'
+                    }else if(this.toEL[prop] === 0){
+                        this.elmnt.style.visibility = 'hidden'
+                    }
+                   
+                } else if (prop === 'value') {
+                    this.elmnt.value = this.toEL[prop]
+                } else if (prop === 'volume') {
+                    this.elmnt.volume = this.toEL[prop]
+                } else if (prop === 'backgroundColor' || prop === 'color') {
+                    let r,
+                        g,
+                        b,
+                        rS = parseInt(this.start[prop].slice(4).split(',')[0]),
+                        gS = parseInt(this.start[prop].slice(4).split(',')[1]),
+                        bS = parseInt(this.start[prop].slice(4).split(',')[2]),
+                        rT = parseInt(this.target[prop].slice(4).split(',')[0]),
+                        gT = parseInt(this.target[prop].slice(4).split(',')[1]),
+                        bT = parseInt(this.target[prop].slice(4).split(',')[2])
+                    r = R.Remap(0, 0.999, rS, rT, this.ease(time * 0.001 / this.duration))
+                    g = R.Remap(0, 0.999, gS, gT, this.ease(time * 0.001 / this.duration))
+                    b = R.Remap(0, 0.999, bS, bT, this.ease(time * 0.001 / this.duration))
+                    if(prop === 'backgroundColor'){
+                        this.elmnt.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
+                    }else{
+                        this.elmnt.style.color = `rgb(${r}, ${g}, ${b})`
+                    }
+                }else if (prop === 'borderRadius') {
+                    this.elmnt.style.borderRadius = `${this.toEL[prop]}px`
+                }else {
+                    prop = this.target[prop]
                 }
             }
             requestAnimationFrame(this.render.bind(this));
-        }else{
+        } else {
             time = this.duration;
-            for(var prop in this.props) {
+            for (var prop in this.props) {
                 this.start[prop] = this.props[prop]
             }
         }
@@ -112,10 +322,6 @@ export default class IziBaiz {
 }
 
 export {
-    lerp,
-    RClamp,
-    iLerp,
-    RRemap,
-    REase,
-    IziBaiz
+    R,
+    IziBaiz,
 }

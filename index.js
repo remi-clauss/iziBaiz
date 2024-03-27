@@ -108,7 +108,7 @@ const R = {
     }
 }
 
-export default class IziBaiz {
+class IziBaiz {
     constructor() {
         this.bind()
         this.startTime
@@ -215,6 +215,7 @@ export default class IziBaiz {
         this.callBack(timeCallback, onComplete)
     }
     init() {
+        this.paused = false
         this.compatibility(this.start, 'init')
         setTimeout(() => {
             this.startTime = new Date()

@@ -1,6 +1,6 @@
 {
   "name": "izibaiz",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Vanilla tweening",
   "main": "index.js",
   "scripts": {

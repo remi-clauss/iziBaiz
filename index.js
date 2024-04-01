@@ -322,7 +322,7 @@ class IziBaiz {
     }
 }
 
-export {
+module.exports = {
     R,
     IziBaiz,
 }

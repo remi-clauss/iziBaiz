@@ -4,14 +4,14 @@
 Pour installer la bibliothèque, ajoutez le répertoire GitHub suivant dans le fichier `package.json` de votre projet en tapant dans la console:
 
 ```console
-npm install daistudio-fr/iziBaiz
+npm install izibaiz
 ```
 
 Vous devrait retrouvé dans votre `package.json`
 
 ```json
 "dependencies": {
-   "iziBaiz": "daistudio-fr/iziBaiz"
+   "iziBaiz": "izibaiz"
 }
 ```
 
@@ -20,7 +20,7 @@ Vous devrait retrouvé dans votre `package.json`
 Pour instancier la bibliothèque dans un fichier, utilisez l'import suivant :
 
 ```javascript
-import { IziBaiz, R } from 'iziBaiz';
+import { IziBaiz, R } from 'izibaiz';
 ```
 
 L'object IziBaiz permet d'instancier les animation

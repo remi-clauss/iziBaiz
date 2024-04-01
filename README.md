@@ -1,4 +1,4 @@
-# README pour la bibliothèque d'animation iziBaiz
+# bibliothèque d'animation iziBaiz
 
 ## Installation
 Pour installer la bibliothèque, ajoutez le répertoire GitHub suivant dans le fichier `package.json` de votre projet en tapant dans la console:

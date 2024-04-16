@@ -178,3 +178,4 @@ Les valeurs peuvent être spécifiées en :
 ---
 
 Merci d'utiliser iziBaiz pour vos animations ! Si vous avez des questions ou des retours, n'hésitez pas à nous contacter.
+![alt text](https://www.radiofrance.fr/s3/cruiser-production/2021/01/2224c77e-2e4d-418e-b2ed-fbdaf9b904b0/870x489_801x410_36636030_405822873271956_6024508582664339456_n_2_1.webp)

@@ -135,14 +135,18 @@ class IziBaiz {
                 if(E[prop] != undefined){
                     this.start[prop] = E[prop]
                 } else if(E.getBoundingClientRect()[prop] != undefined || E.getBoundingClientRect()[prop]){
-                    this.start[prop] = E.getBoundingClientRect()[prop]
+                    if(prop === 'right' || prop === 'top' || prop === 'left' || prop === 'bottom' || prop === 'inset'){
+                        this.start[prop] = parseInt(window.getComputedStyle(E)[prop].replace("px", ""))
+                    }else{
+                        isNaN(A[prop]) ? this.start[prop] = 0 : this.start[prop] = E.getBoundingClientRect()[prop]
+                    }
                 }else if(prop === 'rotate'){
                     this.start[prop] = getCurrentRotation(E)
                 }else if(prop === 'autoAlpha'){
                     this.start['opacity'] = window.getComputedStyle(E)['opacity']
                     this.start['visibility'] = window.getComputedStyle(E)['visibility']
                 }else if(prop != 'autoAlpha' || window.getComputedStyle(E)[prop] != undefined || window.getComputedStyle(E)[prop] != NaN){
-                    this.start[prop] = window.getComputedStyle(E)[prop]
+                    prop === 'scale' ?  this.start[prop] = 1 : this.start[prop] = window.getComputedStyle(E)[prop]
                 }else{
                     this.start[prop] = E[prop]
                 }
@@ -232,23 +236,9 @@ class IziBaiz {
                 if(prop != 'backgroundColor' || prop != 'color'){
                     this.toEL[prop] = R.Remap(0, 0.999, this.start[prop], this.target[prop], this.ease(time * 0.001 / this.duration))
                 }
-                if (prop === 'x' || prop === 'y' || prop === 'rotate') {
+                if (prop === 'x' || prop === 'y' || prop === 'rotate' || prop === 'scale') {
                     if(this.elmnt instanceof window.HTMLElement){
-                        if(this.toEL['x'] === undefined && this.toEL['y'] != undefined && this.toEL['rotate'] != undefined){
-                            this.elmnt.style.transform = `translate3d(0px, ${this.toEL['y']}px, 0px) rotate(${this.toEL['rotate']}deg)`
-                        }else if(this.toEL['y'] === undefined && this.toEL['x'] != undefined && this.toEL['rotate'] != undefined){
-                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, 0px, 0px) rotate(${this.toEL['rotate']}deg)`
-                        }else if(this.toEL['rotate'] === undefined && this.toEL['y'] != undefined && this.toEL['x'] != undefined){
-                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, ${this.toEL['y']}px, 0px)`
-                        }else if(this.toEL['y'] === undefined && this.toEL['x'] === undefined && this.toEL['rotate'] != undefined){
-                            this.elmnt.style.transform = `rotate(${this.toEL['rotate']}deg)`
-                        }else if(this.toEL['y'] === undefined && this.toEL['rotate'] === undefined && this.toEL['x'] != undefined){
-                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, 0px, 0px)`
-                        }else if(this.toEL['x'] === undefined && this.toEL['rotate'] === undefined  && this.toEL['y'] != undefined){
-                            this.elmnt.style.transform = `translate3d(0px, ${this.toEL['y']}px, 0px)`
-                        }else{
-                            this.elmnt.style.transform = `translate3d(${this.toEL['x']}px, ${this.toEL['y']}px, 0px) rotate(${this.toEL['rotate']}deg)`
-                        }
+                        this.elmnt.style.transform = `translate3d(${this.toEL['x'] ? this.toEL['x'] : 0}px, ${this.toEL['y'] ? this.toEL['y'] : 0}px, 0px) rotate(${this.toEL['rotate'] ? this.toEL['rotate'] : 0}deg) scale(${this.toEL['scale'] ? this.toEL['scale'] : 1})`
                     }else{
                         if(prop === 'x'){
                             this.elmnt.x = this.toEL[prop]
@@ -274,6 +264,12 @@ class IziBaiz {
                     if(prop === 'paddingRight')this.elmnt.style.padding = `0 ${this.toEL[prop]}px 0 0`
                     if(prop === 'paddingBottom')this.elmnt.style.padding = `0 0 ${this.toEL[prop]}px 0`
                     if(prop === 'paddingLeft')this.elmnt.style.padding = `0 0 0 ${this.toEL[prop]}px`
+                }else if (prop === 'top' || prop === 'right' || prop === 'bottom' || prop === 'left' || prop === 'inset') {
+                    if(prop === 'top')this.elmnt.style.top = this.toEL[prop] + 'px'
+                    if(prop === 'right')this.elmnt.style.right = this.toEL[prop] + 'px'
+                    if(prop === 'bottom')this.elmnt.style.bottom = this.toEL[prop] + 'px'
+                    if(prop === 'left')this.elmnt.style.left = this.toEL[prop] + 'px'
+                    if(prop === 'inset')this.elmnt.style.inset = this.toEL[prop] + 'px'
                 } else if (prop === 'opacity') {
                     this.elmnt.style.opacity = this.toEL[prop]
                 }else if (prop === 'autoAlpha') {

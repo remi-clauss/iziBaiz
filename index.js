@@ -138,7 +138,13 @@ class IziBaiz {
                     if(prop === 'right' || prop === 'top' || prop === 'left' || prop === 'bottom' || prop === 'inset'){
                         this.start[prop] = parseInt(window.getComputedStyle(E)[prop].replace("px", ""))
                     }else{
-                        isNaN(A[prop]) ? this.start[prop] = 0 : this.start[prop] = E.getBoundingClientRect()[prop]
+                        if(window.getComputedStyle(E)['transform'] != 'none'){
+                            console.log(parseInt(window.getComputedStyle(E)['transform'].split(',')[3]));
+                            if(prop === 'x')  this.start[prop] = parseInt(window.getComputedStyle(E)['transform'].split(',')[4].replace(")", ""))
+                            if(prop === 'y')  this.start[prop] = parseInt(window.getComputedStyle(E)['transform'].split(',')[5].replace(")", ""))
+                        }else{
+                            this.start[prop] = 0 
+                        }
                     }
                 }else if(prop === 'rotate'){
                     this.start[prop] = getCurrentRotation(E)
@@ -146,7 +152,11 @@ class IziBaiz {
                     this.start['opacity'] = window.getComputedStyle(E)['opacity']
                     this.start['visibility'] = window.getComputedStyle(E)['visibility']
                 }else if(prop != 'autoAlpha' || window.getComputedStyle(E)[prop] != undefined || window.getComputedStyle(E)[prop] != NaN){
-                    prop === 'scale' ?  this.start[prop] = 1 : this.start[prop] = window.getComputedStyle(E)[prop]
+                    if(window.getComputedStyle(E)['transform'] != 'none'){
+                        if(prop === 'scale')  this.start[prop] = parseInt(window.getComputedStyle(E)['transform'].split(',')[3].replace(")", ""))
+                    }else{
+                        prop === 'scale' ?  this.start[prop] = 1 : this.start[prop] = window.getComputedStyle(E)[prop]
+                    }
                 }else{
                     this.start[prop] = E[prop]
                 }

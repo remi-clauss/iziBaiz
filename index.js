@@ -139,7 +139,6 @@ class IziBaiz {
                         this.start[prop] = parseInt(window.getComputedStyle(E)[prop].replace("px", ""))
                     }else{
                         if(window.getComputedStyle(E)['transform'] != 'none'){
-                            console.log(parseInt(window.getComputedStyle(E)['transform'].split(',')[3]));
                             if(prop === 'x')  this.start[prop] = parseInt(window.getComputedStyle(E)['transform'].split(',')[4].replace(")", ""))
                             if(prop === 'y')  this.start[prop] = parseInt(window.getComputedStyle(E)['transform'].split(',')[5].replace(")", ""))
                         }else{

@@ -242,7 +242,7 @@ class IziBaiz {
         let time = new Date() - this.startTime
         if (time * 0.001 <= this.duration) {
             for (var prop in this.toEL) {
-                if(prop != 'backgroundColor' || prop != 'color'){
+                if(prop != 'backgroundColor' || prop != 'color' || prop != 'fill'){
                     this.toEL[prop] = R.Remap(0, 0.999, this.start[prop], this.target[prop], this.ease(time * 0.001 / this.duration))
                 }
                 if (prop === 'x' || prop === 'y' || prop === 'rotate' || prop === 'scale') {
@@ -293,7 +293,7 @@ class IziBaiz {
                     this.elmnt.value = this.toEL[prop]
                 } else if (prop === 'volume') {
                     this.elmnt.volume = this.toEL[prop]
-                } else if (prop === 'backgroundColor' || prop === 'color') {
+                } else if (prop === 'backgroundColor' || prop === 'color' || prop === 'fill') {
                     let r,
                         g,
                         b,
@@ -308,8 +308,10 @@ class IziBaiz {
                     b = R.Remap(0, 0.999, bS, bT, this.ease(time * 0.001 / this.duration))
                     if(prop === 'backgroundColor'){
                         this.elmnt.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
-                    }else{
+                    }else if(prop === 'color'){
                         this.elmnt.style.color = `rgb(${r}, ${g}, ${b})`
+                    }else if(prop === 'fill'){
+                        this.elmnt.style.fill = `rgb(${r}, ${g}, ${b})`
                     }
                 }else if (prop === 'borderRadius') {
                     this.elmnt.style.borderRadius = `${this.toEL[prop]}px`
